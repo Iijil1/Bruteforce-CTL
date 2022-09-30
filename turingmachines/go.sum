@@ -1,0 +1,4 @@
+github.com/rgeoghegan/tabulate v0.0.0-20220217214430-080333e57818 h1:1enrMHEch/Pl9WIrggAGQzrlDWefoUAECAksBrCK1iY=
+github.com/rgeoghegan/tabulate v0.0.0-20220217214430-080333e57818/go.mod h1:EpzAQSXg5k4lzRQJDrV0oIsqcUeP78fRyrkCS4VKgS8=
+golang.org/x/exp v0.0.0-20220929160808-de9c53c655b9 h1:lNtcVz/3bOstm7Vebox+5m3nLh/BYWnhmc3AhXOW6oI=
+golang.org/x/exp v0.0.0-20220929160808-de9c53c655b9/go.mod h1:cyybsKvd6eL0RnXn6p/Grxp8F5bW7iYuBgsNCOHpMYE=
