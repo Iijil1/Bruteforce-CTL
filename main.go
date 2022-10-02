@@ -38,6 +38,8 @@ func main() {
 		options = decider.StitchedBouncerSearch()
 	case "nonbinary":
 		options = decider.NonBinaryCounters()
+	case "buffer":
+		options = decider.Buffer()
 	default:
 		fmt.Println("no options specified")
 		os.Exit(-1)

@@ -59,6 +59,7 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 	startConfiguration := &Configuration{State: tm.StartState(), TM: tm, Direction: TM.RIGHT, StackList: stackList, LeftTape: stackList.EmptyStack(), RightTape: stackList.EmptyStack(), Status: TODO, Depth: 0}
 	todoStack := []*Configuration{startConfiguration}
 	redoStack := []*Configuration{}
+	forcedLines := []*Configuration{}
 	configurationMap := make(map[ConfigurationKey]*Configuration)
 	configurationMap[ConfigurationKey{tm.StartState(), TM.RIGHT, stackList.EmptyStack(), stackList.EmptyStack()}] = startConfiguration
 	depthlimit := options.InitialDepth
@@ -70,6 +71,9 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 		if len(redoStack) > 0 {
 			currentConfiguration = redoStack[len(redoStack)-1]
 			redoStack = redoStack[:len(redoStack)-1]
+		} else if len(forcedLines) > 0 {
+			currentConfiguration = forcedLines[0]
+			forcedLines = forcedLines[1:]
 		} else if len(todoStack) > 0 {
 			currentConfiguration = todoStack[0]
 			todoStack = todoStack[1:]
@@ -115,7 +119,10 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 			fmt.Printf("Checking %v\n", currentConfiguration)
 		}
 		currentConfiguration.Status = DONE
-
+		forcedLine := false
+		if options.ForcedLines {
+			forcedLine = true
+		}
 		var possibleSymbols []TM.Symbol
 		var popStackOptions []ATS.AbstractStack
 		if currentConfiguration.Direction == TM.RIGHT {
@@ -123,7 +130,9 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 		} else {
 			possibleSymbols, popStackOptions = currentConfiguration.LeftTape.Pop()
 		}
-
+		if len(possibleSymbols) > 1 {
+			forcedLine = false
+		}
 		possibleSuccessors := make([]ConfigurationKey, len(possibleSymbols))
 		successorPriority := make([]int, len(possibleSymbols))
 		overallFailure := false
@@ -162,6 +171,10 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 					pushStackOptions = nextLeftStack.Push(nextSymbol)
 				} else {
 					pushStackOptions = nextRightStack.Push(nextSymbol)
+				}
+
+				if len(pushStackOptions) > 1 {
+					forcedLine = false
 				}
 				popOptionFailure = true
 				for _, stack := range pushStackOptions {
@@ -317,7 +330,12 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 			}
 			if successor, exists := configurationMap[successorKey]; !exists {
 				nextConfiguration := &Configuration{State: successorKey.State, Direction: successorKey.Direction, StackList: currentConfiguration.StackList, TM: currentConfiguration.TM, LeftTape: successorKey.LeftTape, RightTape: successorKey.RightTape, Status: TODO, Depth: currentConfiguration.Depth + 1, Predecessors: []*Configuration{currentConfiguration}, Successors: []*Configuration{}}
-				todoStack = append(todoStack, nextConfiguration)
+				if forcedLine {
+					nextConfiguration.Depth = currentConfiguration.Depth
+					forcedLines = append(forcedLines, nextConfiguration)
+				} else {
+					todoStack = append(todoStack, nextConfiguration)
+				}
 				configurationMap[successorKey] = nextConfiguration
 				currentConfiguration.Successors = append(currentConfiguration.Successors, nextConfiguration)
 				if nextConfiguration.Depth > maxDepth {

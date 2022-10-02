@@ -10,6 +10,7 @@ type DeciderOptions struct {
 	StepLimit       int
 	InitialDepth    int
 	DepthIncrease   int
+	ForcedLines     bool
 	StackHeuristics ATS.Heuristics
 }
 
@@ -152,6 +153,29 @@ func NonBinaryCounters() DeciderOptions {
 			MaxOrBranches:                0,
 			UseStarInsteadOfPlus:         true,
 			Buffer:                       0,
+		},
+	}
+}
+func Buffer() DeciderOptions {
+	return DeciderOptions{
+		StepLimit:     500000,
+		InitialDepth:  15,
+		DepthIncrease: 3,
+		ForcedLines:   true,
+		StackHeuristics: ATS.Heuristics{
+			SoftLengthLimitAny:           0,
+			AdditionalSymbolsToAny:       0,
+			LengthLimit:                  0,
+			RepetitionsBeforeAbstraction: 1,
+			RepetitionLimit:              2,
+			NestedRepetitions:            false,
+			NoRepeaterUntilLength:        0,
+			FixedRepetitionLength:        0,
+			RepetitionLengthLowerLimit:   2,
+			ConsecutiveRepeatersToOr:     true,
+			MaxOrBranches:                0,
+			UseStarInsteadOfPlus:         true,
+			Buffer:                       2,
 		},
 	}
 }
