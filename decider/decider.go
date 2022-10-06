@@ -57,7 +57,8 @@ type RunInfo struct {
 func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions PrintOptions) (bool, RunInfo) {
 	stackList := ATS.NewStackCollection(tm, options.StackHeuristics)
 	startConfiguration := &Configuration{State: tm.StartState(), TM: tm, Direction: TM.RIGHT, StackList: stackList, LeftTape: stackList.EmptyStack(), RightTape: stackList.EmptyStack(), Status: TODO, Depth: 0}
-	todoStack := []*Configuration{startConfiguration}
+	todoStack := fifoStack{}
+	todoStack.push(startConfiguration)
 	redoStack := []*Configuration{}
 	forcedLines := []*Configuration{}
 	configurationMap := make(map[ConfigurationKey]*Configuration)
@@ -72,11 +73,10 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 			currentConfiguration = redoStack[len(redoStack)-1]
 			redoStack = redoStack[:len(redoStack)-1]
 		} else if len(forcedLines) > 0 {
-			currentConfiguration = forcedLines[0]
-			forcedLines = forcedLines[1:]
-		} else if len(todoStack) > 0 {
-			currentConfiguration = todoStack[0]
-			todoStack = todoStack[1:]
+			currentConfiguration = forcedLines[len(forcedLines)-1]
+			forcedLines = forcedLines[:len(forcedLines)-1]
+		} else if todoStack.length > 0 {
+			currentConfiguration = todoStack.pop()
 		} else {
 			if printOptions.Success {
 				fmt.Printf("After %v steps with maximum depth %v, we found a closed set of configurations. This machine never halts.\n", steps, maxDepth)
@@ -287,7 +287,7 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 						}
 						depthlimit += options.DepthIncrease
 						currentConfiguration.Status = TODO
-						todoStack = append(todoStack, currentConfiguration)
+						todoStack.push(currentConfiguration)
 						continue
 					} else {
 						if printOptions.FoundStartHalting {
@@ -334,7 +334,7 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 					nextConfiguration.Depth = currentConfiguration.Depth
 					forcedLines = append(forcedLines, nextConfiguration)
 				} else {
-					todoStack = append(todoStack, nextConfiguration)
+					todoStack.push(nextConfiguration)
 				}
 				configurationMap[successorKey] = nextConfiguration
 				currentConfiguration.Successors = append(currentConfiguration.Successors, nextConfiguration)
@@ -347,7 +347,7 @@ func BruteforceCTL(tm TM.TuringMachine, options DeciderOptions, printOptions Pri
 			} else {
 				if successor.Status == ABORTED || successor.Status == HALTSBECAUSEDEPTHLIMIT {
 					successor.Status = TODO
-					todoStack = append(todoStack, successor)
+					todoStack.push(successor)
 					if printOptions.AddedConfiguration {
 						fmt.Printf("\tAdding %v, checking it is now necessary again\n", successor)
 					}
