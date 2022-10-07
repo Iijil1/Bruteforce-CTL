@@ -40,6 +40,14 @@ func main() {
 		options = decider.NonBinaryCounters()
 	case "buffer":
 		options = decider.Buffer()
+	case "counterTwo":
+		options = decider.CounterSize2Special()
+	case "counterThree":
+		options = decider.CounterSize(3)
+	case "counterFour":
+		options = decider.CounterSize(4)
+	case "counterFive":
+		options = decider.CounterSize(5)
 	default:
 		fmt.Println("no options specified")
 		os.Exit(-1)
@@ -96,7 +104,7 @@ func main() {
 			f.Write(arr[:])
 		}
 
-		if i%100 == 99 {
+		if i%25 == 24 {
 			fmt.Println(time.Since(startTime), "\tDone:", i+1, "of", numMachines, "=", 100*(i+1)/numMachines, "%\tSuccess rate:", 100*decided/(i+1), "%")
 		}
 	}

@@ -18,6 +18,7 @@ func (options DeciderOptions) IndentedString(indent string) string {
 	indentedString := fmt.Sprintf("%vStepLimit: %v\n", indent, options.StepLimit)
 	indentedString += fmt.Sprintf("%vInitialDepth: %v\n", indent, options.InitialDepth)
 	indentedString += fmt.Sprintf("%vDepthIncrease: %v\n", indent, options.DepthIncrease)
+	indentedString += fmt.Sprintf("%vForcedLines: %v\n", indent, options.ForcedLines)
 	indentedString += fmt.Sprintf("%vStackHeuristics:\n%v", indent, options.StackHeuristics.IndentedString(indent+"\t"))
 	return indentedString
 }
@@ -176,6 +177,54 @@ func Buffer() DeciderOptions {
 			MaxOrBranches:                0,
 			UseStarInsteadOfPlus:         true,
 			Buffer:                       2,
+		},
+	}
+}
+
+func CounterSize2Special() DeciderOptions {
+	return DeciderOptions{
+		StepLimit:     1000000,
+		InitialDepth:  20,
+		DepthIncrease: 4,
+		ForcedLines:   true,
+		StackHeuristics: ATS.Heuristics{
+			SoftLengthLimitAny:           5,
+			AdditionalSymbolsToAny:       0,
+			LengthLimit:                  0,
+			RepetitionsBeforeAbstraction: 0,
+			RepetitionLimit:              2,
+			NestedRepetitions:            false,
+			NoRepeaterUntilLength:        0,
+			FixedRepetitionLength:        2,
+			RepetitionLengthLowerLimit:   0,
+			ConsecutiveRepeatersToOr:     true,
+			MaxOrBranches:                3,
+			UseStarInsteadOfPlus:         true,
+			Buffer:                       2,
+		},
+	}
+}
+
+func CounterSize(n int) DeciderOptions {
+	return DeciderOptions{
+		StepLimit:     500000,
+		InitialDepth:  15,
+		DepthIncrease: 3,
+		ForcedLines:   true,
+		StackHeuristics: ATS.Heuristics{
+			SoftLengthLimitAny:           0,
+			AdditionalSymbolsToAny:       0,
+			LengthLimit:                  0,
+			RepetitionsBeforeAbstraction: 0,
+			RepetitionLimit:              2,
+			NestedRepetitions:            false,
+			NoRepeaterUntilLength:        0,
+			FixedRepetitionLength:        n,
+			RepetitionLengthLowerLimit:   0,
+			ConsecutiveRepeatersToOr:     true,
+			MaxOrBranches:                0,
+			UseStarInsteadOfPlus:         true,
+			Buffer:                       n,
 		},
 	}
 }

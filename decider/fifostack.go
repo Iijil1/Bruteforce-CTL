@@ -24,11 +24,13 @@ func (s *fifoStack) push(value *Configuration) {
 	s.length++
 }
 func (s *fifoStack) pop() *Configuration {
+	if s.length == 0 {
+		return nil
+	}
 	poppedElement := s.first
 	s.first = poppedElement.next
 	s.length--
-	if s.length <= 0 {
-		s.length = 0
+	if s.length == 0 {
 		s.last = nil
 	}
 	return poppedElement.value
